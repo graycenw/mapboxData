@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8' />
+  <title>Pikeminnow & striped bass</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css' rel='stylesheet' />
+  <style>
+ body {
+margin: 0;
+padding: 0;
+font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+ 
+#map {
+position: absolute;
+top: 0;
+bottom: 0;
+width: 100%;
+}
+ 
+h1 {
+font-size: 20px;
+line-height: 30px;
+}
+ 
+h2 {
+font-size: 14px;
+line-height: 20px;
+margin-bottom: 10px;
+}
+ 
+#console {
+position: absolute;
+margin: 10px;
+width: 240px;
+background-color: white;
+padding: 10px 20px;
+}
+
+.legend-key {
+      display: inline-block;
+      border-radius: 20%;
+      width: 15px;
+      height: 15px;
+      margin-right: 5px;
+    }
+
+  .dot {
+      height: 12px;
+      width: 12px;
+      background-color: #d3a697;
+      outline-color: #993404;
+      outline-style: solid;
+      outline-width: 1;
+      border-radius: 50%;
+      margin-left:  1px;
+      margin-right: 3px;
+      display: inline-block;
+    }
+ 
+.session {
+margin-bottom: 20px;
+}
+ 
+.row {
+height: 12px;
+width: 100%;
+}
+ 
+.label {
+width: 15%;
+display: inline-block;
+text-align: center;
+}
+  </style>
+</head>
+
+<body>
+
+<div id='map'></div>
+
+<div id='map'></div>
+<div id='console'>
+  <h1>Striped bass and pikeminnow</h1>
+  <div class='session' id='sliderbar'>
+  <h2>Year: <label id="year"></label></h2>
+  <input id='slider' class='row' type='range' min='1873' range = '149' max='2021' value='1873' /><br><br>
+  <div><span class="legend-key" style="background-color: #c5e2dc;"></span><span>Historic pikeminnow range</span></div><div><span class="legend-key" style="background-color: #86c19f;"></span><span>Current pikeminnow range</span></div>
+  <span class="dot" ></span>   Striped bass observations
+</div>
+<h2>Data:</h2>
+<a href="https://nas.er.usgs.gov/queries/collectioninfo.aspx?SpeciesID=787"
+>Striped bass</a
+> observations outside their native range<br><br>
+<a href="https://pisces.ucdavis.edu/fish-data">Sacramento pikeminnow</a> historic and current ranges
+
+</div>
+
+<script>
+
+// Add the chinook salmon range layer
+mapboxgl.accessToken = 'pk.eyJ1IjoiZ3JheWNlbiIsImEiOiJja3o2bmFyc2MxMjd2MnBvMm43Zm93N241In0.QlhrXwJi8TAXA6tCVcHwKg';
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/graycen/ckz7pqoyh000314pabg6julnl',
+  center: [-121.478851, 38.35],
+  zoom: 6.0
+});
+
+// Add the striped bass observations
+map.on('load', () => {
+  map.addLayer({
+    'id': 'bass',
+    'type': 'circle',
+    'source': {
+      type: 'geojson',
+      data: 'https://paldhous.github.io/fish-map/striped_bass_cumulative.geojson'
+    },
+    'paint': {
+      'circle-radius': 6,
+      'circle-color': '#993404',
+      'circle-opacity': 0.4,
+      'circle-stroke-width': 0.2
+    },
+    'filter': ['==', ['number', ['get', 'year']], 1873]
+  });
+});
+
+// animate striped bass data over years
+
+// filter data based on slider input and set the label to the year
+document.getElementById('slider').addEventListener('input', (event) => {
+   const year = event.target.value;
+  // update the map
+  map.setFilter('bass', ['==', 'year', year]);
+  // update text in the UI
+  document.getElementById('year').innerText = year
+});
+
+// Add zoom and rotation controls to the map. 
+map.addControl(new mapboxgl.NavigationControl()); 
+
+// Disable scroll zooming 
+map.scrollZoom.disable();
+
+
+</script>
+
+</body>
+</html>
